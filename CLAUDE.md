@@ -36,7 +36,16 @@ index.js
 The Screeps server passes a `config` object to the mod function. Relevant properties:
 
 - `config.backend` — an EventEmitter; hooks are registered here
+- `config.backend.router` — Express Router mounted at `/api`; add API routes here
 - `config.common.storage.db` — LokiJS database with MongoDB-style query API
+
+Relevant events emitted by the backend (from `reference/backend-local/lib/game/server.js`):
+
+| Event | Argument | When |
+|---|---|---|
+| `expressPreConfig` | `app` | Before body-parser and auth middleware |
+| `expressPostConfig` | `app` | After all middleware, before `server.listen` |
+| `sendUserNotifications` | `user, notifications` | Per-user notification batch (see cronjob section) |
 
 The backend fires the `sendUserNotifications` event from its `sendNotifications` cronjob, which runs **every 60 seconds**. The event signature is:
 

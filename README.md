@@ -47,8 +47,10 @@ All configuration is done via environment variables — either exported in your 
 |---|---|---|---|
 | `TELEGRAM_TOKEN` | **yes** | — | Bot token from @BotFather |
 | `TELEGRAM_UPDATE_METHOD` | no | `polling` | `polling` or `webhook` |
-| `TELEGRAM_WEBHOOK_DOMAIN` | webhook only | — | Publicly reachable domain (e.g. `screeps.example.com`) |
-| `TELEGRAM_WEBHOOK_PORT` | no | `8443` | Port for the webhook server |
+| `TELEGRAM_WEBHOOK_DOMAIN` | webhook only* | — | Publicly reachable domain — constructs the webhook URL automatically |
+| `TELEGRAM_WEBHOOK_URL` | webhook only* | — | Full webhook URL — overrides `TELEGRAM_WEBHOOK_DOMAIN` |
+
+*One of the two is required in webhook mode.
 
 ### Minimal setup (polling)
 
@@ -60,13 +62,19 @@ export TELEGRAM_TOKEN=123456789:AABBccDDeeFFggHH...
 
 ### Webhook setup
 
-Webhook mode is more efficient for high-traffic servers. It requires a domain with a valid SSL certificate reachable by Telegram's servers.
+Webhook mode is more efficient for high-traffic servers. The webhook is served directly through the **existing Screeps game port** — no extra port or process needed. It requires a domain with a valid SSL certificate reachable by Telegram's servers (ports 443, 80, 88, or 8443).
+
+The mod registers a `POST /telegram-webhook/<token>` route on the Screeps Express app via the `expressPostConfig` hook, and calls `setWebhook` on startup to tell Telegram where to send updates.
 
 ```bash
 export TELEGRAM_TOKEN=123456789:AABBccDDeeFFggHH...
 export TELEGRAM_UPDATE_METHOD=webhook
+
+# Option A — convenience: constructs https://<domain>/telegram-webhook/<token>
 export TELEGRAM_WEBHOOK_DOMAIN=screeps.example.com
-export TELEGRAM_WEBHOOK_PORT=8443
+
+# Option B — explicit: full URL if you need a custom path or port
+export TELEGRAM_WEBHOOK_URL=https://screeps.example.com/telegram-webhook/123456789:AABBccDDeeFFggHH...
 ```
 
 ---
