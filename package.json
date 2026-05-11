@@ -1,0 +1,32 @@
+{
+  "name": "screepsmod-telegram",
+  "version": "0.9.0-beta.0",
+  "description": "Telegram notification mod for Screeps private server",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bastianh/screepsmod-telegram.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bastianh/screepsmod-telegram/issues"
+  },
+  "homepage": "https://github.com/bastianh/screepsmod-telegram#readme",
+  "keywords": [
+    "screeps",
+    "screepsmod",
+    "telegram",
+    "notification"
+  ],
+  "author": "bastianh",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.9.0"
+  },
+  "files": [
+    "index.js",
+    "lib/"
+  ],
+  "dependencies": {
+    "telegraf": "^4.16.3"
+  }
+}
