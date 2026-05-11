@@ -55,20 +55,16 @@ config.backend.emit('sendUserNotifications', user, notifications)
 // notifications: [{ message, date, count, type }]
 ```
 
-### Critical known limitation
+### Cronjob patch
 
-The cronjob in the Screeps backend (`reference/backend-local/lib/cronjobs.js:144`) skips the event entirely if the user has **no email set** or `notifyPrefs.disabled` is true:
+The stock Screeps `sendNotifications` cronjob (`reference/backend-local/lib/cronjobs.js:144`) silently deletes notifications for users without an email address and never fires `sendUserNotifications`. This would break both linking and notification delivery for email-less users.
 
-```js
-if (user.notifyPrefs && (user.notifyPrefs.disabled || !user.email)) {
-    // notifications are deleted, event is never emitted
-    return;
-}
-```
+The mod wraps `config.cronjobs.sendNotifications` in `expressPostConfig` (after the cronjob is registered) to intercept notifications for telegram-linked users without email **before** the original function deletes them:
 
-This means **the Telegram link command (`Game.notify('telegram:link:...')`) will be silently dropped for users without an email address**. Any future improvement to the mod must work around this — either by patching the cronjob behavior or by requiring users to have a dummy email set.
-
-Additionally, notifications are throttled by `user.notifyPrefs.interval` (default: 60 minutes), so the link command may be delayed significantly.
+- Link tokens (`telegram:link:*`) are always emitted immediately, no throttle
+- Regular notifications use `user.notifyPrefs.interval`, tracked in `user.telegram.lastNotifyDate` to avoid interfering with email throttling
+- Users with email are untouched — the original function handles them as before
+- If the patch fails to find the cronjob, it logs an error and falls back gracefully
 
 ### Account linking flow
 
